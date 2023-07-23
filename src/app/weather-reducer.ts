@@ -1,6 +1,7 @@
-import { Dispatch } from 'react';
 import { openMeteoApi } from '../api/open-meteo-api';
-import { dataFormatter, getFormattedRainData, getStartAndEndData } from '../utils/utils';
+import { dataFormatter, getAverageOfNumsArr, getFormattedRainData, getStartAndEndData } from '../utils/utils';
+import { AppRootStateType, ThunkType } from './store';
+import { ThunkDispatch } from 'redux-thunk'
 
 const initialState: AppStateType = {
     status: 'Ready',
@@ -30,6 +31,22 @@ export const weatherReducer = (state: AppStateType = initialState, action: Weath
             } : {...el})
             return newState
         }
+        case 'APP/SET-MIN-TEMP': {
+            let newState = {...state}
+            newState.weatherData = state.weatherData = newState.weatherData.map(el => el.name === action.payload.month ? {
+                ...el,
+                min: action.payload.minTemp
+            } : {...el})
+            return newState
+        }
+        case 'APP/SET-MAX-TEMP': {
+            let newState = {...state}
+            newState.weatherData = state.weatherData = newState.weatherData.map(el => el.name === action.payload.month ? {
+                ...el,
+                max: action.payload.maxTemp
+            } : {...el})
+            return newState
+        }
         case 'APP/SET-STATUS': {
             let newState = {...state}
             newState.status = action.payload.status
@@ -42,11 +59,27 @@ export const weatherReducer = (state: AppStateType = initialState, action: Weath
 }
 
 //actions
-export const addMonthDataAC = (month: MonthNames, rainyDays: number) => ({
+export const addRainDataAC = (month: MonthNames, rainyDays: number) => ({
     type: 'APP/SET-RAIN-DATA',
     payload: {
         month,
         rainyDays
+    }
+} as const)
+
+export const setMinTempAC = (month: MonthNames, minTemp: number) => ({
+    type: 'APP/SET-MIN-TEMP',
+    payload: {
+        month,
+        minTemp
+    }
+} as const)
+
+export const setMaxTempAC = (month: MonthNames, maxTemp: number) => ({
+    type: 'APP/SET-MAX-TEMP',
+    payload: {
+        month,
+        maxTemp
     }
 } as const)
 
@@ -58,30 +91,61 @@ export const setStatusAC = (status: AppStatusType) => ({
 } as const)
 
 //thunks
-export const getLastYearWeatherTC = () => async (dispatch: Dispatch<WeatherActionsType>) => {
+export const getLastYearWeatherTC = ():ThunkType => async (dispatch: ThunkDispatch<AppRootStateType,unknown, WeatherActionsType>) => {
     try {
         dispatch(setStatusAC('Loading'))
         let currentDate = new Date();
-        for (let i = 0; i < 11; i++) {
+        for (let i = 0; i < 12; i++) {
             let [startDate, endDate] = getStartAndEndData(currentDate, i)
             const endDateFormatted = endDate.getFullYear() + '-' + dataFormatter(endDate.getMonth() + 1) + '-' + dataFormatter(endDate.getDate());
             const startDateFormatted = startDate.getFullYear() + '-' + dataFormatter(startDate.getMonth() + 1) + '-' + dataFormatter(startDate.getDate());
-            let res = await openMeteoApi.getLastYearWeather(startDateFormatted, endDateFormatted)
+            let res = await openMeteoApi.getWeatherAndRain(startDateFormatted, endDateFormatted)
             const [month, rainyDays] = getFormattedRainData(res.data.hourly.rain, startDate)
-            dispatch(addMonthDataAC(month, rainyDays))
+            dispatch(addRainDataAC(month, rainyDays))
         }
-        debugger
-        dispatch(setStatusAC('Ready'))
+        setTimeout(() => {
+            dispatch(setStatusAC('Ready'))
+        }, 5000)
     } catch (e) {
         dispatch(setStatusAC('Error'))
     }
 
 }
 
-//types
-type WeatherActionsType = addMonthDataActionType | setStatusActionType
+export const getHistoricalDataTC = ():ThunkType => async (dispatch: ThunkDispatch<AppRootStateType,unknown, WeatherActionsType>) => {
+    try {
+        dispatch(setStatusAC('Loading'))
+        let currentDate = new Date();
+        for (let i = 0; i < 12; i++) {
+            let monthsTempArr = []
+            let [startDate, endDate] = getStartAndEndData(currentDate, i)
+            for (let j = 0; j < (currentDate.getFullYear() - 2010); j++) {
+                const endDateFormatted = (endDate.getFullYear() - j) + '-' + dataFormatter(endDate.getMonth() + 1) + '-' + dataFormatter(endDate.getDate());
+                const startDateFormatted = (startDate.getFullYear() - j) + '-' + dataFormatter(startDate.getMonth() + 1) + '-' + dataFormatter(startDate.getDate());
+                let res = await openMeteoApi.getWeather(startDateFormatted, endDateFormatted)
+                monthsTempArr.push(getAverageOfNumsArr(res.data.hourly.temperature_2m))
+            }
+            const monthName: string = startDate.toLocaleString('default', {month: 'long'});
+            dispatch(setMinTempAC(monthName as MonthNames, Math.min(...monthsTempArr)))
+            dispatch(setMaxTempAC(monthName as MonthNames, Math.max(...monthsTempArr)))
+        }
+        setTimeout(() => {
+            dispatch(setStatusAC('Ready'))
+        }, 5000)
+    } catch (e) {
+        dispatch(setStatusAC('Error'))
+    }
+}
 
-export type addMonthDataActionType = ReturnType<typeof addMonthDataAC>
+//types
+export type WeatherActionsType = addRainDataActionType
+    | setMinTempActionType
+    | setMaxTempActionType
+    | setStatusActionType
+
+export type addRainDataActionType = ReturnType<typeof addRainDataAC>
+export type setMinTempActionType = ReturnType<typeof setMinTempAC>
+export type setMaxTempActionType = ReturnType<typeof setMaxTempAC>
 export type setStatusActionType = ReturnType<typeof setStatusAC>
 
 export type AppStateType = {

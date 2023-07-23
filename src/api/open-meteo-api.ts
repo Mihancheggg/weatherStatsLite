@@ -5,14 +5,18 @@ const instance = axios.create({
 })
 
 export const openMeteoApi = {
-    getLastYearWeather(start: string, end: string) {
-        return instance.get<ResponseType>
+    getWeatherAndRain(start: string, end: string) {
+        return instance.get<ResponseType<HourlyUnitsDataWithRain, HourlyDataWithRain>>
         ( `archive?latitude=55.7522&longitude=37.6156&start_date=${start}&end_date=${end}&hourly=temperature_2m,rain`)
-    }
+    },
 
+    getWeather(start: string, end: string) {
+        return instance.get<ResponseType<HourlyUnitsData, HourlyData>>
+        (`archive?latitude=55.7522&longitude=37.6156&start_date=${start}&end_date=${end}&hourly=temperature_2m`)
+    }
 };
 
-type ResponseType = {
+type ResponseType<T,D> = {
     latitude: number,
     longitude: number,
     generationtime_ms: number,
@@ -20,17 +24,27 @@ type ResponseType = {
     timezone: string,
     timezone_abbreviation: string,
     elevation: number,
-    hourly_units: HourlyUnitsData,
-    hourly: HourlyData
+    hourly_units: T,
+    hourly: D
 }
 
 type HourlyUnitsData = {
+    time: string,
+    temperature_2m: string,
+}
+
+type HourlyUnitsDataWithRain = {
     time: string,
     temperature_2m: string,
     rain: string
 }
 
 type HourlyData = {
+    time: Array<string>,
+    temperature_2m: Array<number>,
+}
+
+type HourlyDataWithRain = {
     time: Array<string>,
     temperature_2m: Array<number>,
     rain: Array<number>

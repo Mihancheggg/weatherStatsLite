@@ -1,0 +1,25 @@
+.navbar {
+    width: 100%;
+    height: 100px;
+    background-color: black;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.link, .activeLink {
+    margin: 20px;
+    text-decoration: none;
+}
+
+.link {
+    color: aliceblue;
+}
+
+.activeLink {
+    color: orange;
+}
+
+.link:hover, .activeLink:hover {
+    text-decoration: underline;
+}

@@ -34,3 +34,11 @@ export function getFormattedRainData(rainDataArr: Array<number>, startDate: Date
     }
     return [monthName as MonthNames, numOfRainyDays]
 }
+
+export function getAverageOfNumsArr(arr: Array<number>): number {
+    let sum = 0
+    for (let i = 0; i < arr.length; i++) {
+        sum += arr[i]
+    }
+    return Math.round(sum / arr.length)
+}

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './App.css';
 import { AppRootStateType, useAppDispatch } from './store';
-import { AppStatusType, getLastYearWeatherTC, MonthData } from './weather-reducer';
+import { AppStatusType, getHistoricalDataTC, getLastYearWeatherTC, MonthData } from './weather-reducer';
 import { useSelector } from 'react-redux';
 import { Table } from '../components/Table/Table';
 import { Navbar } from '../components/Navbar/Navbar';
@@ -15,7 +15,10 @@ function App() {
 
     useEffect(() => {
         dispatch(getLastYearWeatherTC())
+    }, [dispatch])
 
+    useEffect(() => {
+        dispatch(getHistoricalDataTC())
     }, [dispatch])
 
     if (status === 'Loading') {
@@ -30,12 +33,13 @@ function App() {
 
     return (
         <div className="App">
-            <Navbar/>
-            <Routes>
-                <Route path={'/'} element={<Table weatherData={weatherData}/>}/>
-                <Route path={'/charts'} element={<Chart/>}/>
-            </Routes>
-
+            <div className="container">
+                <Navbar/>
+                <Routes>
+                    <Route path={'/'} element={<Table weatherData={weatherData}/>}/>
+                    <Route path={'/charts'} element={<Chart data={weatherData}/>}/>
+                </Routes>
+            </div>
         </div>
     );
 }
