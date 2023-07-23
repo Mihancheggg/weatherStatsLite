@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import './App.css';
 import { AppRootStateType, useAppDispatch } from './store';
-import { getLastYearWeatherTC, MonthData } from './weather-reducer';
+import { AppStatusType, getLastYearWeatherTC, MonthData } from './weather-reducer';
 import { useSelector } from 'react-redux';
 import { Table } from '../components/Table/Table';
 import { Navbar } from '../components/Navbar/Navbar';
@@ -9,20 +9,30 @@ import { Route, Routes } from 'react-router-dom';
 import { Chart } from '../components/Chart/Chart';
 
 function App() {
-    const weatherData = useSelector<AppRootStateType, Array<MonthData>>((state) => state.weather.weatherData);
     const dispatch: any = useAppDispatch();
-
+    const status = useSelector<AppRootStateType, AppStatusType>(state => state.weather.status)
+    const weatherData = useSelector<AppRootStateType, Array<MonthData>>(state => state.weather.weatherData)
 
     useEffect(() => {
-       dispatch(getLastYearWeatherTC())
-    })
+        dispatch(getLastYearWeatherTC())
 
+    }, [dispatch])
+
+    if (status === 'Loading') {
+        return (
+            <div className="App">
+                <h1>
+                    Loading...
+                </h1>
+            </div>
+        )
+    }
 
     return (
         <div className="App">
             <Navbar/>
             <Routes>
-                <Route path={'/'} element={<Table data={weatherData}/>}/>
+                <Route path={'/'} element={<Table weatherData={weatherData}/>}/>
                 <Route path={'/charts'} element={<Chart/>}/>
             </Routes>
 
