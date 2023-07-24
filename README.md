@@ -26,7 +26,7 @@ Information provided by https://open-meteo.com.
 - **Redux-Thunk**
 - **Axios**
 - **Recharts**
--
+
 ## Git commits: <type>: <description>
 
 ### `add:` - adding new functions
