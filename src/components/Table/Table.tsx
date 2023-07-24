@@ -22,7 +22,7 @@ export const Table = (props: TablePropsType) => {
                 {props.weatherData.map(el => <tr key={el.name}>
                     <td className={styles.row}>{el.name}</td>
                     <td>{el.max}°/{el.min}°</td>
-                    <td>{el.rainy}</td>
+                    <td>{el.rainy} дней</td>
                 </tr>)}
                 </tbody>
             </table>
