@@ -1,6 +1,7 @@
 # Weather Stats Lite
 
-This project was gives you information about amount of rainy days during last year and average temperature by months/
+This project was gives you information about amount of rainy days during last year and average temperature by months.
+Information provided by https://open-meteo.com.
 
 ## Setup
 
