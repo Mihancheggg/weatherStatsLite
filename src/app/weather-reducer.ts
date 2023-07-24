@@ -114,12 +114,13 @@ export const getLastYearWeatherTC = ():ThunkType => async (dispatch: ThunkDispat
 
 export const getHistoricalDataTC = ():ThunkType => async (dispatch: ThunkDispatch<AppRootStateType,unknown, WeatherActionsType>) => {
     try {
+        const startYear = 2010;
         dispatch(setStatusAC('Loading'))
         let currentDate = new Date();
         for (let i = 0; i < 12; i++) {
             let monthsTempArr = []
             let [startDate, endDate] = getStartAndEndData(currentDate, i)
-            for (let j = 0; j < (currentDate.getFullYear() - 2010); j++) {
+            for (let j = 0; j < (currentDate.getFullYear() - startYear); j++) {
                 const endDateFormatted = (endDate.getFullYear() - j) + '-' + dataFormatter(endDate.getMonth() + 1) + '-' + dataFormatter(endDate.getDate());
                 const startDateFormatted = (startDate.getFullYear() - j) + '-' + dataFormatter(startDate.getMonth() + 1) + '-' + dataFormatter(startDate.getDate());
                 let res = await openMeteoApi.getWeather(startDateFormatted, endDateFormatted)
