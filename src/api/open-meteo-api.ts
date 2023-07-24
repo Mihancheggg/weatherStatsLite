@@ -28,6 +28,7 @@ type ResponseType<T,D> = {
     hourly: D
 }
 
+//ToDo: refactor types with interfaces. Types are duplicated
 type HourlyUnitsData = {
     time: string,
     temperature_2m: string,

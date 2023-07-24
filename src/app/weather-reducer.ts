@@ -113,6 +113,7 @@ export const getLastYearWeatherTC = ():ThunkType => async (dispatch: ThunkDispat
 }
 
 export const getHistoricalDataTC = ():ThunkType => async (dispatch: ThunkDispatch<AppRootStateType,unknown, WeatherActionsType>) => {
+    //ToDo: refactor data mining logics. Too much requests! Maybe another place for business logic?
     try {
         const startYear = 2010;
         dispatch(setStatusAC('Loading'))
