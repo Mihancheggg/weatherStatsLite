@@ -8,7 +8,7 @@ export function dataFormatter(num: number) {
     }
 }
 
-export function getStartAndEndData(date: Date, iteration: number):[Date, string, string] {
+export function getStartAndEndData(date: Date, iteration: number):[Date, Date, string, string] {
     let startDate = new Date(date)
     startDate.setFullYear(startDate.getFullYear() - 1);
     startDate.setMonth(startDate.getMonth() + iteration);
@@ -19,7 +19,7 @@ export function getStartAndEndData(date: Date, iteration: number):[Date, string,
     endDate.setDate(endDate.getDate() - 1)
     const endDateString = stringifyFullDate(endDate);
     const startDateString = stringifyFullDate(startDate);
-    return [startDate, startDateString, endDateString]
+    return [startDate, endDate, startDateString, endDateString]
 }
 
 export function getFormattedRainData(rainDataArr: Array<number>, startDate: Date): [MonthNames, number] {
@@ -49,11 +49,17 @@ export function stringifyFullDate (date: Date): string {
     return date.getFullYear() + '-' + dataFormatter(date.getMonth() + 1) + '-' + dataFormatter(date.getDate());
 }
 
+export function stringifyDateWithStep (date: Date, step: number): string {
+    return (date.getFullYear()-step) + '-' + dataFormatter(date.getMonth() + 1) + '-' + dataFormatter(date.getDate());
+}
+
 export function getMonthNameFromDate (date: Date): MonthNames {
     let monthName = date.toLocaleString('default', {month: 'long'});
     return monthName as MonthNames
 }
 
 export function getMinAndMaxFromArr(arr: Array<number>): [number, number]{
-    return [Math.min(...arr), Math.max(...arr)]
+    let minTemp = Math.min(...arr);
+    let maxTemp = Math.max(...arr)
+    return [minTemp, maxTemp]
 }

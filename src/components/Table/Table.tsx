@@ -19,7 +19,7 @@ export const Table = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {weatherData.map(el => <TableRow monthData={el}/>)}
+                {weatherData.map(el => <TableRow key={el.name} monthData={el}/>)}
                 </tbody>
             </table>
         </div>
