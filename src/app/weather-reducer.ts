@@ -1,5 +1,11 @@
 import { openMeteoApi } from '../api/open-meteo-api';
-import { dataFormatter, getAverageOfNumsArr, getFormattedRainData, getStartAndEndData } from '../utils/utils';
+import {
+    getAverageOfNumsArr,
+    getFormattedRainData,
+    getMinAndMaxFromArr,
+    getMonthNameFromDate,
+    getStartAndEndData
+} from '../utils/utils';
 import { AppRootStateType, ThunkType } from './store';
 import { ThunkDispatch } from 'redux-thunk'
 
@@ -96,10 +102,8 @@ export const getLastYearWeatherTC = ():ThunkType => async (dispatch: ThunkDispat
         dispatch(setStatusAC('Loading'))
         let currentDate = new Date();
         for (let i = 0; i < 12; i++) {
-            let [startDate, endDate] = getStartAndEndData(currentDate, i)
-            const endDateFormatted = endDate.getFullYear() + '-' + dataFormatter(endDate.getMonth() + 1) + '-' + dataFormatter(endDate.getDate());
-            const startDateFormatted = startDate.getFullYear() + '-' + dataFormatter(startDate.getMonth() + 1) + '-' + dataFormatter(startDate.getDate());
-            let res = await openMeteoApi.getWeatherAndRain(startDateFormatted, endDateFormatted)
+            let [startDate, startDateString, endDateString] = getStartAndEndData(currentDate, i)
+            let res = await openMeteoApi.getWeatherAndRain(startDateString, endDateString)
             const [month, rainyDays] = getFormattedRainData(res.data.hourly.rain, startDate)
             dispatch(addRainDataAC(month, rainyDays))
         }
@@ -120,16 +124,15 @@ export const getHistoricalDataTC = ():ThunkType => async (dispatch: ThunkDispatc
         let currentDate = new Date();
         for (let i = 0; i < 12; i++) {
             let monthsTempArr = []
-            let [startDate, endDate] = getStartAndEndData(currentDate, i)
+            let [startDate, startDateString, endDateString] = getStartAndEndData(currentDate, i)
             for (let j = 0; j < (currentDate.getFullYear() - startYear); j++) {
-                const endDateFormatted = (endDate.getFullYear() - j) + '-' + dataFormatter(endDate.getMonth() + 1) + '-' + dataFormatter(endDate.getDate());
-                const startDateFormatted = (startDate.getFullYear() - j) + '-' + dataFormatter(startDate.getMonth() + 1) + '-' + dataFormatter(startDate.getDate());
-                let res = await openMeteoApi.getWeather(startDateFormatted, endDateFormatted)
+                let res = await openMeteoApi.getWeather(startDateString, endDateString)
                 monthsTempArr.push(getAverageOfNumsArr(res.data.hourly.temperature_2m))
             }
-            const monthName: string = startDate.toLocaleString('default', {month: 'long'});
-            dispatch(setMinTempAC(monthName as MonthNames, Math.min(...monthsTempArr)))
-            dispatch(setMaxTempAC(monthName as MonthNames, Math.max(...monthsTempArr)))
+            const monthName: MonthNames = getMonthNameFromDate(startDate)
+            const [minTemp, maxTemp] = getMinAndMaxFromArr(monthsTempArr)
+            dispatch(setMinTempAC(monthName, minTemp))
+            dispatch(setMaxTempAC(monthName, maxTemp))
         }
         setTimeout(() => {
             dispatch(setStatusAC('Ready'))
