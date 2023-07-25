@@ -4,7 +4,9 @@ import {
     getFormattedRainData,
     getMinAndMaxFromArr,
     getMonthNameFromDate,
-    getStartAndEndData, stringifyDateWithStep
+    getStartAndEndDate,
+    stringifyDateWithStep,
+    stringifyFullDate
 } from '../utils/utils';
 import { AppRootStateType, ThunkType } from './store';
 import { ThunkDispatch } from 'redux-thunk'
@@ -102,7 +104,9 @@ export const getLastYearWeatherTC = ():ThunkType => async (dispatch: ThunkDispat
         dispatch(setStatusAC('Loading'))
         let currentDate = new Date();
         for (let i = 0; i < 12; i++) {
-            let [startDate, endDate, startDateString, endDateString] = getStartAndEndData(currentDate, i)
+            let [startDate, endDate] = getStartAndEndDate(currentDate, i);
+            let startDateString = stringifyFullDate(startDate);
+            let endDateString = stringifyFullDate(endDate)
             let res = await openMeteoApi.getWeatherAndRain(startDateString, endDateString)
             const [month, rainyDays] = getFormattedRainData(res.data.hourly.rain, startDate)
             dispatch(addRainDataAC(month, rainyDays))
@@ -124,7 +128,7 @@ export const getHistoricalDataTC = ():ThunkType => async (dispatch: ThunkDispatc
         let currentDate = new Date();
         for (let i = 0; i < 12; i++) {
             let monthsTempArr = []
-            let [startDate, endDate, startDateString, endDateString] = getStartAndEndData(currentDate, i)
+            let [startDate, endDate] = getStartAndEndDate(currentDate, i)
             for (let j = 0; j < (currentDate.getFullYear() - startYear); j++) {
                 let steppedStartDate = stringifyDateWithStep(startDate, j)
                 let steppedEndDate = stringifyDateWithStep(endDate, j)

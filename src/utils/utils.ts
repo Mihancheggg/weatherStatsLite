@@ -8,7 +8,7 @@ export function dataFormatter(num: number) {
     }
 }
 
-export function getStartAndEndData(date: Date, iteration: number):[Date, Date, string, string] {
+export function getStartAndEndDate(date: Date, iteration: number):[Date, Date] {
     let startDate = new Date(date)
     startDate.setFullYear(startDate.getFullYear() - 1);
     startDate.setMonth(startDate.getMonth() + iteration);
@@ -17,9 +17,7 @@ export function getStartAndEndData(date: Date, iteration: number):[Date, Date, s
     let endDate = new Date(startDate)
     endDate.setMonth(endDate.getMonth() + 1);
     endDate.setDate(endDate.getDate() - 1)
-    const endDateString = stringifyFullDate(endDate);
-    const startDateString = stringifyFullDate(startDate);
-    return [startDate, endDate, startDateString, endDateString]
+    return [startDate, endDate]
 }
 
 export function getFormattedRainData(rainDataArr: Array<number>, startDate: Date): [MonthNames, number] {
